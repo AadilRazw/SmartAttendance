@@ -15,7 +15,7 @@ app = Flask(__name__)
 run_with_ngrok(app) 
 
 # Configure the upload folder and allowed extensions
-app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
 # Ensure the upload folder exists
