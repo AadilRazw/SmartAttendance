@@ -1,9 +1,18 @@
 from flask import Flask, request, jsonify
+from flask_ngrok import run_with_ngrok
 from werkzeug.utils import secure_filename
 import os
-from main import main
+import importlib
+import main
+importlib.reload(main)
+from pyngrok import ngrok
+ngrok.set_auth_token("token") #enter your ngrok token here
 
+# Set up a tunnel to the Flask app
+public_url = ngrok.connect(5000)
+print('Public URL:', public_url)
 app = Flask(__name__)
+run_with_ngrok(app) 
 
 # Configure the upload folder and allowed extensions
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -20,11 +29,13 @@ def allowed_file(filename):
 # Basic route
 @app.route('/')
 def home():
-    return "Hello, Flask!"
+
+    return f"Hello, Flask!"
 
 # Upload route to handle image uploads
 @app.route('/compare', methods=['POST'])
 def upload_file():
+    print("uploads")
     if 'image' not in request.files:
         return jsonify({'message': 'No file part'}), 400
 
@@ -37,10 +48,11 @@ def upload_file():
 
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
-        res = main(file_path)
-        return jsonify({'message': 'Image uploaded successfully', 'file_path': res}), 200
+        res = main.main(file_path)
+        print(res)
+        return jsonify({'message': 'Image uploaded successfully', 'file_path': res.replace("images/","")}), 200
 
     return jsonify({'message': 'File type not allowed'}), 400
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
